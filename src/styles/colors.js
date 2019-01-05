@@ -1,3 +1,5 @@
+import Color from 'color';
+
 export default {
   // defaults
   white: '#fff',
@@ -13,6 +15,7 @@ export default {
 
   // system
   primary: '#6550b7',
+  primaryDark: Color('#6550b7').darken(0.1),
   secundary: '#6adc00',
   success: '#9dca83',
   danger: '#e37a7a',
