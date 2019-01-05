@@ -1,10 +1,20 @@
-import { call, put } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import api from '~/services/api';
 
-import { addFavoriteSuccess } from '~/store/actions/favorites';
+import { Creators as FavoriteActions } from '~/store/ducks/favorites';
 
 export function* addFavoriteRequest(action) {
-  const { data } = yield call(api.get, `/repos/${action.payload.repository}`);
+  try {
+    const { data } = yield call(api.get, `/repos/${action.payload.repository}`);
 
-  yield put(addFavoriteSuccess(data));
+    const favorites = yield select(state => state.favorites.data);
+
+    if (favorites.find(favorite => favorite.id === data.id)) {
+      yield put(FavoriteActions.addFavoriteFailure('Repositório duplicado'));
+    } else {
+      yield put(FavoriteActions.addFavoriteSuccess(data));
+    }
+  } catch (error) {
+    yield put(FavoriteActions.addFavoriteFailure('Repositório não existe'));
+  }
 }

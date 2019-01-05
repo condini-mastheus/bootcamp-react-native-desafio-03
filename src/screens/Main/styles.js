@@ -58,6 +58,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
   },
+
+  error: {
+    fontWeight: 'bold',
+    color: colors.danger,
+    textAlign: 'center',
+    marginBottom: metrics.baseMargin,
+  },
+
+  loader: {
+    color: colors.white,
+  },
 });
 
 export default styles;

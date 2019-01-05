@@ -1,12 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-  SafeAreaView, View, Text, TextInput, TouchableOpacity, Keyboard,
+  SafeAreaView,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Keyboard,
+  ActivityIndicator,
 } from 'react-native';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import * as FavoriteActions from '~/store/actions/favorites';
+import { Creators as FavoriteActions } from '~/store/ducks/favorites';
 
 import styles from './styles';
 
@@ -20,7 +26,11 @@ class Main extends Component {
       navigate: PropTypes.func,
     }).isRequired,
     addFavoriteRequest: PropTypes.func.isRequired,
-    favoritesCount: PropTypes.number.isRequired,
+    favorites: PropTypes.shape({
+      data: PropTypes.arrayOf(PropTypes.shape),
+      isLoading: PropTypes.bool,
+      errorOnAdd: PropTypes.oneOfType([null, PropTypes.string]),
+    }).isRequired,
   };
 
   state = {
@@ -49,7 +59,7 @@ class Main extends Component {
 
   render() {
     const { repoInput } = this.state;
-    const { favoritesCount } = this.props;
+    const { favorites } = this.props;
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.content}>
@@ -57,6 +67,8 @@ class Main extends Component {
           <Text style={styles.description}>Adicione seus repositórios favoritos aqui</Text>
 
           <View style={styles.form}>
+            {!!favorites.errorOnAdd && <Text style={styles.error}>{favorites.errorOnAdd}</Text>}
+
             <TextInput
               style={styles.input}
               autoCapitalize="none"
@@ -72,7 +84,11 @@ class Main extends Component {
               onPress={this.addRepository}
               activeOpacity={0.6}
             >
-              <Text style={styles.buttonText}>Adicionar aos favoritos</Text>
+              {favorites.isLoading ? (
+                <ActivityIndicator size="small" color={styles.loader.color} />
+              ) : (
+                <Text style={styles.buttonText}>Adicionar aos favoritos</Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -81,7 +97,7 @@ class Main extends Component {
           <TouchableOpacity onPress={this.handleNavigation}>
             <Text style={styles.footerLink}>
 Meus favoritos (
-              {favoritesCount}
+              {favorites.data.length}
 )
             </Text>
           </TouchableOpacity>
@@ -92,7 +108,7 @@ Meus favoritos (
 }
 
 const mapStateToProps = state => ({
-  favoritesCount: state.favorites.length,
+  favorites: state.favorites,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(FavoriteActions, dispatch);
